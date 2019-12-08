@@ -159,6 +159,22 @@ class HWP(object):
 
         return np.array([T,rho,c,s])
 
+    def bin_params(self, alpha, bin_min, bin_max):
+        Mueller = tm.BandAveragedMueller(self.stack, reflected=True,
+            spectrumFile= ????, minFreq=bin_min, maxFreq=bin_max, numFreqs=10,
+            rotation=0.0, incidenceAngle=alpha, inputIndex=1.0, outputIndex=1.0)
+        '''
+        Compute the parameters of the unrotated Mueller matrix averaged over a 
+        frequency bin. WHAT ABOUT SPECTRUM FILE ? FLAT? BB?
+        '''
+        T = Mueller[0,0]
+        rho= Mueller[0,1]/ Mueller[0,0]
+        c =  Mueller[2,2]/ Mueller[0,0]
+        s =  Mueller[3,2]/ Mueller[0,0]
+
+        return np.array([T,rho,c,s])
+
+
     def topRowMuellerMatrix(self, psi=0.0, xi=0.0, theta=0.0, 
                              hwp_params=None):
         '''
@@ -195,7 +211,8 @@ class Beam(object):
     A class representing detector and beam properties.
     '''
     def __init__(self, az=0., el=0., polang=0., name=None,
-                 pol='A', btype='Gaussian', fwhm=None, lmax=700, mmax=None, sensitive_freq = 150e9,
+                 pol='A', btype='Gaussian', fwhm=None, lmax=700, mmax=None, 
+                 sensitive_freq = 150e9, freq_bin_half_size = None,
                  dead=False, ghost=False, amplitude=1., po_file=None,
                  eg_file=None, cross_pol=True, deconv_q=True,
                  normalize=True, polang_error=0., idx=None,
@@ -230,6 +247,11 @@ class Beam(object):
         fwhm : float
             Detector beam FWHM in arcmin (used for Guassian beam)
             (default : 43)
+        sensitive_freq : float
+            Centre of the detector beam frequency bin, in Hz
+        freq_bin_half_size : float
+            Half size of the frequency bin (i.e. the bin is sensitive freq pm 
+            this parameter), in Hz
         lmax : int
             Bandlimit beam. If None, use 1.4*2*pi/fwhm. (default : None)
         mmax : int
@@ -723,6 +745,12 @@ class Beam(object):
             self.hwp.stack_builder(thicknesses=thicknesses, 
                 indices=indices, losses=losses, angles=angles)
 
+        if self.freq_bin_half_size:
+            bin_min = self.sensitive_freq - self.freq_bin_half_size
+            bin_max = self.sensitive_freq + self.freq_bin_half_size
+            self.hwp_precomp_mueller = self.hwp.bin_params(alpha=np.radians(self.el),
+                bin_min=bin_min, bin_max=bin_max)
+        else:
         self.hwp_precomp_mueller = self.hwp.compute4params(freq=self.sensitive_freq,
                 alpha=np.radians(self.el))
 
