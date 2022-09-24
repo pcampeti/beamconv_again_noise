@@ -2443,7 +2443,7 @@ class ScanStrategy(Instrument, qp.QMap):
         return ctime
 
     def l2_scan(self, theta_antisun=45., theta_boresight = 50.,
-        freq_antisun = 192.348, freq_boresight = 0.314, sample_rate = 19.1,
+        period_antisun = 192.348, rate_boresight = 0.05, sample_rate = 19.1,
         jitter_amp=0.0, **kwargs):
 
         '''
@@ -2451,16 +2451,18 @@ class ScanStrategy(Instrument, qp.QMap):
 
         Keyword arguments
         -----------------
-        alpha : float
-            Angle between spin axis and precession axis in degree.
+        theta_antisun : float
+            theta anti-Sun angle in degrees of the scanning strategy 
+            (default : 45.)
+        theta_boresight : float
+            theta boresight angle in degrees of the scanning strategy
             (default : 50.)
-        beta : float
-            Angle between spin axis and boresight in degree.
-            (default : 50.)
-        alpha_period : float
-            Time period for precession in seconds. (default : 5400)
-        beta_period : float
-            Spin period in seconds. (default : 600.)
+        period_antisun : float
+            rotation period of theta anti-Sun in minutes
+            (default : 192.348)
+        rate_boresight : float
+            rotation rate of theta boresight in rpm
+            (default : 0.05)
         jitter_amp : float
             Std of iid Gaussian noise added to elevation coords.
             (default : 0.0)
@@ -2480,11 +2482,6 @@ class ScanStrategy(Instrument, qp.QMap):
         See Wallis et al., 2017, MNRAS, 466, 425.
         '''
 
-        siad = 86400.           # seconds in a day
-        today_julian = 1        # Just set to 1 by hand
-        sample_rate = 19.1      # Hz
-        ydays = 20              # duration of the mission (in days)
-        nsiade = 256
         runtime_i = time.time()
 
         dt = 1 / float(self.fsamp)
