@@ -14,7 +14,7 @@ class Beam(object):
                  eg_file=None, cross_pol=True, deconv_q=True,
                  normalize=True, polang_error=0., idx=None,
                  symmetric=False, hwp=None, 
-                 hwp_mueller=None, quats=None):
+                 hwp_mueller=None, quats=np.array([None])):
         '''
         Initialize a detector beam.
 
@@ -113,9 +113,9 @@ class Beam(object):
         self.hwp = hwp
         self.hwp_mueller = hwp_mueller
         
-        if quats != None:
+        if (quats != None).all():
             self.quat = quats
-        else: self.quat = np.empty(4,like=None)
+        else: self.quat = np.array([None,None,None,None])
         
         self.__ghost = ghost
         # Ghosts are not allowed to have ghosts
