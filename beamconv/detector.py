@@ -114,7 +114,7 @@ class Beam(object):
         self.hwp_mueller = hwp_mueller
         
         if (quats != None).all():
-            self.quat = quats
+            self.quat = quats[idx][0]
         else: self.quat = np.array([None,None,None,None])
         
         self.__ghost = ghost
