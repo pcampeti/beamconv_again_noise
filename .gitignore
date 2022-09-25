@@ -8,4 +8,4 @@ tests/*
 /tests/test_data*
 !/tests/test_data/test_fpu/.gitignore
 beamconv.egg-info
-build/*
+/build/*
