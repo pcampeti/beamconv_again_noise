@@ -159,15 +159,23 @@ def cosangle(xi, yi, zi, xii, yii, zii):
     terms of their x, y and z components.
     
     '''
-
-    #implemented Martin's suggestion 
     #return np.arccos((xi*xii+yi*yii+zi*zii)/np.sqrt(xi*xi+yi*yi+zi*zi)\ 
     #      /np.sqrt(xii*xii+yii*yii+zii*zii)) 
-    ang = np.zeros(np.shape(xi)) 
-    for i in np.arange(len(xi)): 
-        vi = np.array([xi[i],yi[i],zi[i]]) 
-        vii = np.array([xii[i],yii[i],zii[i]]) 
-        ang[i] = np.arctan2(np.linalg.norm(np.cross(vi,vii)),np.dot(vi,vii)) 
+
+    #implemented Martin's suggestion 
+    #ang = np.zeros(np.shape(xi)) 
+    #for i in np.arange(len(xi)): 
+    #    vi = np.array([xi[i],yi[i],zi[i]]) 
+    #    vii = np.array([xii[i],yii[i],zii[i]]) 
+    #    ang[i] = np.arctan2(np.linalg.norm(np.cross(vi,vii)),np.dot(vi,vii)) 
+    
+    #avoided for cycle
+    vi = np.array([xi,yi,zi]).transpose()
+    vii = np.array([xii,yii,zii]).transpose()
+    cross = np.cross(vi,vii,axisa=1,axisb=1)
+    norm = np.linalg.norm(cross,axis=1)
+    dot = np.einsum('ij,ij->i',vi,vii) 
+    ang = np.arctan2(norm,dot) 
     return ang 
 
 def deriv_theta(xi, yi, zi):
