@@ -9,6 +9,7 @@ import pickle
 import numpy as np
 import qpoint as qp
 import healpy as hp
+import ducc0
 
 from . import scanning
 from . import tools
@@ -4347,7 +4348,8 @@ class ScanStrategy(Instrument, qp.QMap):
 
 
     def bin_tod(self, beam, tod=None, flag=None, init=True, add_to_global=True,
-                filter_4fhwp=False, filter_highpass=False, **kwargs):
+                filter_4fhwp=False, filter_highpass=False, noise_tod=False,
+                **kwargs):
         '''
         Take internally stored tod and boresight
         pointing, combine with detector offset,
@@ -4405,6 +4407,20 @@ class ScanStrategy(Instrument, qp.QMap):
 
         if tod is None:
             tod = self.tod
+            if noise_tod:
+                print('adding noise to TOD chunk')
+                nsamp_chunk = len(tod)
+                inp = np.random.normal(0.,1.,(nsamp_chunk,))
+                sigma = 54.0 * 100
+                f_min = 1e-05
+                f_knee = 0.02
+                f_samp = 19.0
+                slope = -2.0
+                gen = ducc0.misc.OofaNoise(sigma, f_min, f_knee, f_samp, slope)
+                noise = gen.filterGaussian(inp)
+                tod += noise
+                self.tod = tod # USELESS LINE: DELETE AFTER TEST
+
 
         if filter_4fhwp:
             if self.hwp_dict['mode'] == 'continuous':
