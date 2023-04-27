@@ -4419,7 +4419,7 @@ class ScanStrategy(Instrument, qp.QMap):
                 gen = ducc0.misc.OofaNoise(sigma, f_min, f_knee, f_samp, slope)
                 noise = gen.filterGaussian(inp)
                 tod += noise
-                self.tod = tod # USELESS LINE: DELETE AFTER TEST
+                self.tod = tod 
 
 
         if filter_4fhwp:
